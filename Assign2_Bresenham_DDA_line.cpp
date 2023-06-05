@@ -1,13 +1,19 @@
 #include <iostream>
 #include <GL/glut.h>
 #include <math.h>
+
 #define ROUND(X)((int)X+0.5)
+
 using namespace std;
+
 static int menu_id;
 static int submenu_id1;
 static int submenu_id2;
+
 int w = 640;
 int h = 480;
+
+// Defined fucntions to be used
 void DDA_simple(float,float,float,float);
 void DDA_dashed(float, float, float, float);
 void DDA_dotted(float, float, float, float);
@@ -25,6 +31,7 @@ void init(void)
 	glPointSize(4.0);
 	gluOrtho2D(-w / 2, w / 2, -h / 2, h / 2); //dividing screen into 4 quadrants
 }
+
 void draw() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glBegin(GL_LINES);
@@ -35,6 +42,7 @@ void draw() {
 	glEnd();
 	glFlush();
 }
+
 void DDA_simple(float x1,float y1,float x2,float y2) 
 {
 	float dx, dy, X, Y,steps, xinc, yinc;
@@ -192,38 +200,59 @@ void DDA_solid(float x1, float y1, float x2, float y2)
 	}
 }
 
-
-void BH_simple(float x1, float y1, float x2, float y2)
+void bh_simple(float x1, float y1, float x2, float y2)
 {
-	float dx, dy, di, ds, dt;
-	int count = 0;
-	dx = x2 - x1;
-	dy = y2 - y1;
-	di = (2 * (dy)) - (dx); //decision parameter
-	ds = 2 * (dy);  //if value of decision parameter<0
-	dt = 2 * ((dy)-(dx));  //if value of decision parameter>0
-	glPointSize(4.0);
-	glBegin(GL_POINTS);
-	glVertex2f(x1, y1);
-	glEnd();
-	while (x1 < x2)
-	{
-		x1++;
-		if (di < 0)  //di=di+2dy=>di=di+ds; ynew=yold; xnew=xold+1
-		{
-			di += ds;
-		}
-		else  //di=di+2(dy-dx)=>di=di+dt; ynew=yold+1; xnew+xold+1
-		{
-			y1++;
-			di += dt;
-		}
-		glPointSize(4.0);
-		glBegin(GL_POINTS);
-		glVertex2f(x1, y1);
-		glEnd();
-	}
+    float di, ds, dl, dx, dy;
+    int i = 0;
+    int step;
+    dx = x2 - x1;
+    dy = y2 - y1; 
+    di = 2*dy - dx;
+    ds = 2*dy;
+    dl = 2*(dy - dx);
+    if(abs(dx)>=abs(dy))
+    {
+        step = abs(dx);
+    }else
+    {
+        step = abs(dy);
+    }
+    glPointSize(4.0);
+    glBegin(GL_POINTS);
+    glVertex2f(x1,y1);
+    glEnd();
+    glFlush();
+    while(i <= step){
+        if (dx != 0){
+            x1++;
+            i++;
+        }else{
+            i++;
+        }
+        if(di < 0){
+            if(dy == 0){
+                di = di + ds; 
+            }else{
+                di = di + ds; 
+                y1--;
+            }
+        }else{
+            if(y2>y1){
+                di = di + dl;
+                y1++;
+            }else{
+                di = di + dl;
+                y1--;
+            }
+        }
+        glPointSize(4.0);
+        glBegin(GL_POINTS);
+        glVertex2f(x1,y1);
+        glEnd();
+        glFlush();
+    }
 }
+
 void BH_dashed(float x1, float y1, float x2, float y2)
 {
 	float dx, dy, di, ds, dt;
